@@ -13,13 +13,17 @@ import java.util.List;
  *
  * @author carli
  */
-public class ControllerDB {
-
+public class DBController {
+    public static int dropId;
+    public static String selectName;
     public static Book book;
     public static Connection connection = null;
     public static PreparedStatement pstm = null;
     public static Statement stm = null;
     public static ResultSet rst = null;
+    public static String dropBook= "DELETE FROM biblioteca WHERE idBook = "+dropId+";"; 
+    public static String SELECT_NAME_BOOK = "SELECT idBook, name, author, editorial, stock, price FROM book "
+            + "WHERE CONTAINS(name, '"+selectName+"';";
     public static String ALL_LIST_BOOK = "SELECT idBook, name, author, editorial, stock, price FROM book;";
     public static String CREATE_DB_BIBLIOTECA = "CREATE DATABASE IF NOT EXISTS biblioteca;";
     public static String DROP_DB_BIBLIOTECA = "DROP DATABASE IF EXISTS biblioteca;";
@@ -124,8 +128,51 @@ public class ControllerDB {
         return list;
     }
 
-    public static Book selectBook(int idBook) {
+    public static List<Book> selectNameBook(String selectName) {
+        DBController.selectName=selectName;
+        List<Book> list = new ArrayList<>();
+        try {
+            connection = DBConnection.connectRootDB();
+            pstm = connection.prepareStatement(SELECT_NAME_BOOK);
+            rst = pstm.executeQuery();
+            while (rst.next()) {
+                int idBook = rst.getInt("idBook");
+                String name = rst.getString("name");
+                String author = rst.getString("author");
+                String editorial = rst.getString("editorial");
+                int stock = rst.getInt("stock");
+                float price = rst.getFloat("price");
 
-        return book;
+                book = new Book(idBook, name, author, editorial, stock, price);
+                list.add(book);
+            }
+        } catch (SQLException ex) {
+            ex.getMessage();
+        } finally {
+            try {
+                DBConnection.closeConnectDB(rst);
+                DBConnection.closePStm(pstm);
+                DBConnection.closeConnectDB(connection);
+            } catch (SQLException ex) {
+                ex.getMessage();
+            }
+        }
+        return list;
+    }
+    public static void dropBook(int idBook) {
+        DBController.dropId=idBook;
+        try {
+            connection = DBConnection.connectRootDB();
+            pstm = connection.prepareStatement(SELECT_NAME_BOOK);
+        } catch (SQLException ex) {
+            ex.getMessage();
+        } finally {
+            try {
+                DBConnection.closePStm(pstm);
+                DBConnection.closeConnectDB(connection);
+            } catch (SQLException ex) {
+                ex.getMessage();
+            }
+        }
     }
 }
