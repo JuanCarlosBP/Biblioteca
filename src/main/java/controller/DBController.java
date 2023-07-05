@@ -14,16 +14,15 @@ import java.util.List;
  * @author carli
  */
 public class DBController {
-    public static int dropId;
-    public static String selectName;
+
     public static Book book;
     public static Connection connection = null;
     public static PreparedStatement pstm = null;
     public static Statement stm = null;
     public static ResultSet rst = null;
-    public static String dropBook= "DELETE FROM biblioteca WHERE idBook = "+dropId+";"; 
+    public static String dropBook = "DELETE FROM biblioteca WHERE idBook = ";
     public static String SELECT_NAME_BOOK = "SELECT idBook, name, author, editorial, stock, price FROM book "
-            + "WHERE CONTAINS(name, '"+selectName+"';";
+            + "WHERE CONTAINS(name, '";
     public static String ALL_LIST_BOOK = "SELECT idBook, name, author, editorial, stock, price FROM book;";
     public static String CREATE_DB_BIBLIOTECA = "CREATE DATABASE IF NOT EXISTS biblioteca;";
     public static String DROP_DB_BIBLIOTECA = "DROP DATABASE IF EXISTS biblioteca;";
@@ -129,7 +128,7 @@ public class DBController {
     }
 
     public static List<Book> selectNameBook(String selectName) {
-        DBController.selectName=selectName;
+        DBController.SELECT_NAME_BOOK = DBController.SELECT_NAME_BOOK + selectName + "';";
         List<Book> list = new ArrayList<>();
         try {
             connection = DBConnection.connectRootDB();
@@ -159,11 +158,12 @@ public class DBController {
         }
         return list;
     }
+
     public static void dropBook(int idBook) {
-        DBController.dropId=idBook;
+        DBController.dropBook = DBController.dropBook + idBook + ";";
         try {
             connection = DBConnection.connectRootDB();
-            pstm = connection.prepareStatement(SELECT_NAME_BOOK);
+            pstm = connection.prepareStatement(dropBook);
         } catch (SQLException ex) {
             ex.getMessage();
         } finally {
